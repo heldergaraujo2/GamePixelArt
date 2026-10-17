@@ -1,0 +1,106 @@
+{
+  "$schema": "../../../schemas/sprite-manifest.schema.json",
+  "id": "sylvaren-mossling",
+  "category": "mob",
+  "region": "sylvaren",
+  "displayName": "Musgo Errante (placeholder)",
+  "status": "specification-only",
+  "source": null,
+  "frameSize": {
+    "width": 64,
+    "height": 64
+  },
+  "directions": [
+    "south",
+    "north",
+    "west",
+    "east"
+  ],
+  "pivot": {
+    "x": 32,
+    "y": 58,
+    "unit": "pixels-from-top-left"
+  },
+  "animations": {
+    "idle": {
+      "fps": 5,
+      "loop": true,
+      "directions": {
+        "south": {
+          "frames": []
+        },
+        "north": {
+          "frames": []
+        },
+        "west": {
+          "frames": []
+        },
+        "east": {
+          "frames": []
+        }
+      }
+    },
+    "walk": {
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "south": {
+          "frames": []
+        },
+        "north": {
+          "frames": []
+        },
+        "west": {
+          "frames": []
+        },
+        "east": {
+          "frames": []
+        }
+      }
+    },
+    "attack": {
+      "fps": 10,
+      "loop": false,
+      "directions": {
+        "south": {
+          "frames": []
+        },
+        "north": {
+          "frames": []
+        },
+        "west": {
+          "frames": []
+        },
+        "east": {
+          "frames": []
+        }
+      }
+    },
+    "death": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "south": {
+          "frames": []
+        },
+        "north": {
+          "frames": []
+        },
+        "west": {
+          "frames": []
+        },
+        "east": {
+          "frames": []
+        }
+      }
+    }
+  },
+  "collisionBox": {
+    "x": 12,
+    "y": 30,
+    "width": 40,
+    "height": 28,
+    "unit": "pixels-from-top-left"
+  },
+  "notes": "Manifest de especificação; nenhum sprite/frame foi produzido."
+}

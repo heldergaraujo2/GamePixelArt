@@ -1,0 +1,13 @@
+# JavaScript dependencies and build output
+node_modules/
+cliente/dist/
+cliente/public/assets/
+*.tsbuildinfo
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*

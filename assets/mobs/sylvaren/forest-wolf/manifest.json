@@ -1,0 +1,106 @@
+{
+  "$schema": "../../../schemas/sprite-manifest.schema.json",
+  "id": "sylvaren-forest-wolf",
+  "category": "mob",
+  "region": "sylvaren",
+  "displayName": "Lobo da Floresta (placeholder)",
+  "status": "specification-only",
+  "source": null,
+  "frameSize": {
+    "width": 96,
+    "height": 64
+  },
+  "directions": [
+    "south",
+    "north",
+    "west",
+    "east"
+  ],
+  "pivot": {
+    "x": 48,
+    "y": 56,
+    "unit": "pixels-from-top-left"
+  },
+  "animations": {
+    "idle": {
+      "fps": 6,
+      "loop": true,
+      "directions": {
+        "south": {
+          "frames": []
+        },
+        "north": {
+          "frames": []
+        },
+        "west": {
+          "frames": []
+        },
+        "east": {
+          "frames": []
+        }
+      }
+    },
+    "walk": {
+      "fps": 10,
+      "loop": true,
+      "directions": {
+        "south": {
+          "frames": []
+        },
+        "north": {
+          "frames": []
+        },
+        "west": {
+          "frames": []
+        },
+        "east": {
+          "frames": []
+        }
+      }
+    },
+    "attack": {
+      "fps": 12,
+      "loop": false,
+      "directions": {
+        "south": {
+          "frames": []
+        },
+        "north": {
+          "frames": []
+        },
+        "west": {
+          "frames": []
+        },
+        "east": {
+          "frames": []
+        }
+      }
+    },
+    "death": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "south": {
+          "frames": []
+        },
+        "north": {
+          "frames": []
+        },
+        "west": {
+          "frames": []
+        },
+        "east": {
+          "frames": []
+        }
+      }
+    }
+  },
+  "collisionBox": {
+    "x": 18,
+    "y": 34,
+    "width": 60,
+    "height": 26,
+    "unit": "pixels-from-top-left"
+  },
+  "notes": "Manifest de especificação; nenhum sprite/frame foi produzido."
+}

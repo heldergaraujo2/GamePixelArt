@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/sprite-manifest.schema.json",
+  "id": "sylvaren-tileset-placeholder",
+  "category": "tileset",
+  "region": "sylvaren",
+  "displayName": "Tileset básico de Sylvaren (placeholder)",
+  "status": "placeholder",
+  "source": "sylvaren-placeholder.png",
+  "frameSize": { "width": 64, "height": 64 },
+  "pivot": { "x": 32, "y": 64, "unit": "pixels-from-top-left" },
+  "animations": {},
+  "tiles": [
+    { "id": "grass-ground", "x": 0, "y": 0, "width": 64, "height": 64, "solid": false, "walkable": true },
+    { "id": "grass-tufts", "x": 64, "y": 0, "width": 64, "height": 64, "solid": false, "walkable": true },
+    { "id": "tree", "x": 128, "y": 0, "width": 64, "height": 64, "solid": true, "walkable": false },
+    { "id": "stone", "x": 192, "y": 0, "width": 64, "height": 64, "solid": true, "walkable": false }
+  ],
+  "notes": "PNG placeholder 4×1 tiles em pixel art sem antialias. Árvore e pedra usam chão como base opaca; colisão ocupa o tile inteiro."
+}

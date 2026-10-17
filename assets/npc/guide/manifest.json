@@ -1,0 +1,69 @@
+{
+  "$schema": "../../schemas/sprite-manifest.schema.json",
+  "id": "sylvaren-guide",
+  "category": "npc",
+  "displayName": "Guia de Sylvaren (placeholder)",
+  "status": "specification-only",
+  "source": null,
+  "frameSize": {
+    "width": 64,
+    "height": 96
+  },
+  "directions": [
+    "south",
+    "north",
+    "west",
+    "east"
+  ],
+  "pivot": {
+    "x": 32,
+    "y": 84,
+    "unit": "pixels-from-top-left"
+  },
+  "animations": {
+    "idle": {
+      "fps": 6,
+      "loop": true,
+      "directions": {
+        "south": {
+          "frames": []
+        },
+        "north": {
+          "frames": []
+        },
+        "west": {
+          "frames": []
+        },
+        "east": {
+          "frames": []
+        }
+      }
+    },
+    "talk": {
+      "fps": 6,
+      "loop": false,
+      "directions": {
+        "south": {
+          "frames": []
+        },
+        "north": {
+          "frames": []
+        },
+        "west": {
+          "frames": []
+        },
+        "east": {
+          "frames": []
+        }
+      }
+    }
+  },
+  "collisionBox": {
+    "x": 20,
+    "y": 62,
+    "width": 24,
+    "height": 22,
+    "unit": "pixels-from-top-left"
+  },
+  "notes": "Manifest de especificação; nenhum sprite/frame foi produzido."
+}

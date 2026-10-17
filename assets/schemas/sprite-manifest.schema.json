@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aetherion.example/schemas/sprite-manifest.schema.json",
+  "title": "Aetherion asset manifest",
+  "type": "object",
+  "required": ["id", "category", "status", "source", "frameSize", "pivot", "animations"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "minLength": 1 },
+    "category": { "enum": ["character", "npc", "mob", "tileset"] },
+    "region": { "type": "string" },
+    "displayName": { "type": "string" },
+    "status": { "enum": ["specification-only", "placeholder", "production"] },
+    "source": { "type": ["string", "null"] },
+    "frameSize": {
+      "type": "object", "required": ["width", "height"],
+      "properties": { "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 } },
+      "additionalProperties": false
+    },
+    "directions": { "type": "array", "items": { "enum": ["south", "north", "west", "east"] } },
+    "pivot": {
+      "type": "object", "required": ["x", "y", "unit"],
+      "properties": { "x": { "type": "number" }, "y": { "type": "number" }, "unit": { "const": "pixels-from-top-left" } },
+      "additionalProperties": false
+    },
+    "animations": {
+      "type": "object", "additionalProperties": {
+        "type": "object", "required": ["fps", "loop", "directions"],
+        "properties": {
+          "fps": { "type": "number", "exclusiveMinimum": 0 },
+          "loop": { "type": "boolean" },
+          "directions": { "type": "object", "additionalProperties": { "type": "object", "required": ["frames"], "properties": { "frames": { "type": "array", "items": { "$ref": "#/$defs/frame" } } }, "additionalProperties": false } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "collisionBox": { "type": "object" },
+    "notes": { "type": "string" },
+    "tiles": { "type": "array", "items": { "type": "object" } }
+  },
+  "$defs": {
+    "frame": {
+      "type": "object", "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+        "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

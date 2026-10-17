@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/sprite-manifest.schema.json",
+  "id": "player-placeholder",
+  "category": "character",
+  "displayName": "Personagem jogável (placeholder)",
+  "status": "placeholder",
+  "source": "player-placeholder.png",
+  "frameSize": { "width": 64, "height": 96 },
+  "directions": ["south", "west", "east", "north"],
+  "pivot": { "x": 32, "y": 84, "unit": "pixels-from-top-left" },
+  "animations": {
+    "idle": {
+      "fps": 6,
+      "loop": true,
+      "directions": {
+        "south": { "frames": [{ "x": 0, "y": 0, "width": 64, "height": 96 }] },
+        "west": { "frames": [{ "x": 0, "y": 96, "width": 64, "height": 96 }] },
+        "east": { "frames": [{ "x": 0, "y": 192, "width": 64, "height": 96 }] },
+        "north": { "frames": [{ "x": 0, "y": 288, "width": 64, "height": 96 }] }
+      }
+    },
+    "walk": {
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "south": { "frames": [{ "x": 64, "y": 0, "width": 64, "height": 96 }, { "x": 128, "y": 0, "width": 64, "height": 96 }] },
+        "west": { "frames": [{ "x": 64, "y": 96, "width": 64, "height": 96 }, { "x": 128, "y": 96, "width": 64, "height": 96 }] },
+        "east": { "frames": [{ "x": 64, "y": 192, "width": 64, "height": 96 }, { "x": 128, "y": 192, "width": 64, "height": 96 }] },
+        "north": { "frames": [{ "x": 64, "y": 288, "width": 64, "height": 96 }, { "x": 128, "y": 288, "width": 64, "height": 96 }] }
+      }
+    }
+  },
+  "collisionBox": { "x": 20, "y": 62, "width": 24, "height": 22, "unit": "pixels-from-top-left" },
+  "notes": "Placeholder PNG feito para o protótipo; não representa a arte final. Sprite sheet 3 colunas × 4 linhas, transparente."
+}

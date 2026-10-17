@@ -4,8 +4,32 @@ const TILE = 64;
 const MAP_COLUMNS = 48;
 const MAP_ROWS = 36;
 const WALK_SPEED = 190;
-
 type Facing = 'south' | 'west' | 'east' | 'north';
+
+interface FrameRect { x: number; y: number; width: number; height: number }
+interface DirectionFrames { frames: FrameRect[] }
+interface AnimationSpec {
+  fps: number;
+  loop: boolean;
+  directions: Partial<Record<Facing, DirectionFrames>>;
+}
+interface SpriteManifest {
+  id: string;
+  source: string;
+  frameSize: { width: number; height: number };
+  pivot: { x: number; y: number };
+  animations: Record<string, AnimationSpec>;
+}
+interface TileSpec extends FrameRect {
+  id: string;
+  solid: boolean;
+  walkable: boolean;
+}
+interface TilesetManifest {
+  id: string;
+  source: string;
+  tiles: TileSpec[];
+}
 
 export class WorldScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
@@ -19,31 +43,38 @@ export class WorldScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.spritesheet('player', '/assets/characters/player/player-placeholder.png', {
-      frameWidth: 64,
-      frameHeight: 96,
-    });
-    this.load.spritesheet('sylvaren', '/assets/tilesets/sylvaren/sylvaren-placeholder.png', {
-      frameWidth: TILE,
-      frameHeight: TILE,
-    });
+    this.load.json('player-manifest', '/assets/characters/player/manifest.json');
+    this.load.json('sylvaren-manifest', '/assets/tilesets/sylvaren/manifest.json');
+    // Carregamos cada PNG como textura única: os retângulos reais vêm dos manifests,
+    // não de uma suposição de spritesheet uniforme feita pelo loader do Phaser.
+    this.load.image('player-source', '/assets/characters/player/player-placeholder.png');
+    this.load.image('sylvaren-source', '/assets/tilesets/sylvaren/sylvaren-placeholder.png');
   }
 
   create(): void {
-    this.createAnimations();
-    const mapData = this.createMapData();
+    const playerManifest = this.cache.json.get('player-manifest') as SpriteManifest;
+    const tilesetManifest = this.cache.json.get('sylvaren-manifest') as TilesetManifest;
+    this.assertSource(playerManifest.source, 'player-placeholder.png', 'player');
+    this.assertSource(tilesetManifest.source, 'sylvaren-placeholder.png', 'tileset');
+    this.registerPlayerFrames(playerManifest);
+    this.registerTileFrames(tilesetManifest);
+    this.createAnimations(playerManifest);
+
+    const mapData = this.createMapData(tilesetManifest);
     const map = this.make.tilemap({ data: mapData, tileWidth: TILE, tileHeight: TILE });
-    const tiles = map.addTilesetImage('sylvaren', 'sylvaren', TILE, TILE, 0, 0, 1);
+    const tiles = map.addTilesetImage('sylvaren', 'sylvaren-source', TILE, TILE, 0, 0, 1);
     if (!tiles) throw new Error('Não foi possível carregar o tileset de Sylvaren.');
     const ground = map.createLayer(0, tiles, 0, 0);
     if (!ground) throw new Error('Não foi possível criar a camada do mapa.');
 
-    // Índices do tilemap começam em 1: 3 = árvore (frame 2), 4 = pedra (frame 3).
-    ground.setCollision([3, 4]);
+    const solidIndexes = tilesetManifest.tiles
+      .map((tile, index) => tile.solid ? index + 1 : -1)
+      .filter((index) => index >= 0);
+    ground.setCollision(solidIndexes);
     this.physics.world.setBounds(0, 0, MAP_COLUMNS * TILE, MAP_ROWS * TILE);
 
-    this.player = this.physics.add.sprite(15 * TILE + TILE / 2, 17 * TILE + TILE / 2, 'player', 0);
-    this.player.setOrigin(0.5, 0.875);
+    this.player = this.physics.add.sprite(15 * TILE + TILE / 2, 17 * TILE + TILE / 2, 'player-source', 'idle-south-0');
+    this.player.setOrigin(0.5, playerManifest.pivot.y / playerManifest.frameSize.height);
     this.player.setSize(24, 22);
     this.player.setOffset(20, 62);
     this.player.setCollideWorldBounds(true);
@@ -94,43 +125,81 @@ export class WorldScene extends Phaser.Scene {
     this.status.setText(`POS  ${Math.floor(this.player.x / TILE)}, ${Math.floor(this.player.y / TILE)}   ·   COLISÃO ATIVA`);
   }
 
-  private createAnimations(): void {
-    const rows: Record<Facing, number> = { south: 0, west: 1, east: 2, north: 3 };
-    for (const [facing, row] of Object.entries(rows) as [Facing, number][]) {
-      const idleFrame = row * 3;
-      this.anims.create({
-        key: `idle-${facing}`,
-        frames: [{ key: 'player', frame: idleFrame }],
-        frameRate: 6,
-        repeat: -1,
-      });
-      this.anims.create({
-        key: `walk-${facing}`,
-        frames: this.anims.generateFrameNumbers('player', { start: idleFrame + 1, end: idleFrame + 2 }),
-        frameRate: 8,
-        repeat: -1,
-      });
+  private assertSource(source: string, expectedFile: string, label: string): void {
+    if (!source || !source.endsWith(expectedFile)) {
+      throw new Error(`Manifest de ${label} aponta para um asset inesperado: ${source}`);
     }
   }
 
-  private createMapData(): number[][] {
-    const data = Array.from({ length: MAP_ROWS }, () => Array<number>(MAP_COLUMNS).fill(1));
-    // Manchas de vegetação decorativa. A faixa central fica livre para caminhar.
-    for (let y = 2; y < MAP_ROWS - 2; y += 5) {
-      for (let x = 2 + (y % 3); x < MAP_COLUMNS - 2; x += 7) data[y][x] = 2;
+  private registerPlayerFrames(manifest: SpriteManifest): void {
+    const texture = this.textures.get('player-source');
+    for (const [animationName, animation] of Object.entries(manifest.animations)) {
+      for (const [direction, spec] of Object.entries(animation.directions) as [Facing, DirectionFrames][]) {
+        spec.frames.forEach((rect, index) => {
+          const frameName = `${animationName}-${direction}-${index}`;
+          this.addManifestFrame(texture, frameName, rect, 'player');
+        });
+      }
     }
-    // Árvores em pequenos agrupamentos; mantém uma clareira inicial e caminhos entre áreas.
+  }
+
+  private registerTileFrames(manifest: TilesetManifest): void {
+    const texture = this.textures.get('sylvaren-source');
+    for (const tile of manifest.tiles) this.addManifestFrame(texture, tile.id, tile, 'tileset');
+  }
+
+  private addManifestFrame(texture: Phaser.Textures.Texture, name: string, rect: FrameRect, label: string): void {
+    if (rect.x < 0 || rect.y < 0 || rect.width <= 0 || rect.height <= 0) {
+      throw new Error(`Frame inválido no manifest de ${label}: ${name}`);
+    }
+    const source = texture.getSourceImage() as HTMLImageElement;
+    if (rect.x + rect.width > source.width || rect.y + rect.height > source.height) {
+      throw new Error(`Frame ${name} excede as dimensões do PNG de ${label}.`);
+    }
+    texture.add(name, 0, rect.x, rect.y, rect.width, rect.height);
+  }
+
+  private createAnimations(manifest: SpriteManifest): void {
+    for (const [animationName, animation] of Object.entries(manifest.animations)) {
+      for (const [direction, spec] of Object.entries(animation.directions) as [Facing, DirectionFrames][]) {
+        const frames = spec.frames.map((_, index) => ({
+          key: 'player-source',
+          frame: `${animationName}-${direction}-${index}`,
+        }));
+        this.anims.create({
+          key: `${animationName}-${direction}`,
+          frames,
+          frameRate: animation.fps,
+          repeat: animation.loop ? -1 : 0,
+        });
+      }
+    }
+  }
+
+  private createMapData(manifest: TilesetManifest): number[][] {
+    const tileIndex = (id: string): number => {
+      const index = manifest.tiles.findIndex((tile) => tile.id === id);
+      if (index < 0) throw new Error(`Tile '${id}' não foi definido no manifest Sylvaren.`);
+      return index + 1;
+    };
+    const ground = tileIndex('grass-ground');
+    const grass = tileIndex('grass-tufts');
+    const tree = tileIndex('tree');
+    const stone = tileIndex('stone');
+    const data = Array.from({ length: MAP_ROWS }, () => Array<number>(MAP_COLUMNS).fill(ground));
+
+    for (let y = 2; y < MAP_ROWS - 2; y += 5) {
+      for (let x = 2 + (y % 3); x < MAP_COLUMNS - 2; x += 7) data[y][x] = grass;
+    }
     const groves = [[5, 5], [30, 5], [39, 14], [6, 27], [33, 28], [20, 7], [19, 29]];
     for (const [gx, gy] of groves) {
       for (let y = gy; y < gy + 3; y++) for (let x = gx; x < gx + 3; x++) {
-        if ((x + y) % 4 !== 0 && !(x === 15 && y === 17)) data[y][x] = 3;
+        if ((x + y) % 4 !== 0) data[y][x] = tree;
       }
     }
-    // Pedras fora da clareira.
-    for (const [x, y] of [[12, 8], [26, 10], [41, 25], [13, 29], [35, 18], [3, 18]]) data[y][x] = 4;
-    // Borda sólida de cenário para evidenciar os limites da câmera/mundo.
-    for (let x = 0; x < MAP_COLUMNS; x++) { data[0][x] = 3; data[MAP_ROWS - 1][x] = 3; }
-    for (let y = 0; y < MAP_ROWS; y++) { data[y][0] = 3; data[y][MAP_COLUMNS - 1] = 3; }
+    for (const [x, y] of [[12, 8], [26, 10], [41, 25], [13, 29], [35, 18], [3, 18]]) data[y][x] = stone;
+    for (let x = 0; x < MAP_COLUMNS; x++) { data[0][x] = tree; data[MAP_ROWS - 1][x] = tree; }
+    for (let y = 0; y < MAP_ROWS; y++) { data[y][0] = tree; data[y][MAP_COLUMNS - 1] = tree; }
     return data;
   }
 
